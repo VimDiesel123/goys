@@ -12,6 +12,7 @@ import {
 } from "excalibur";
 import { Card, CARD_WIDTH, CardEvents } from "./card";
 import { Hand } from "./hand";
+import { GAME_START_EVENT, GameBoard, PLAY_CARD_EVENT } from "./game_board";
 
 type Turn = "player" | "enemy";
 const PLAYER_HAND_START_X = 100;
@@ -26,9 +27,11 @@ export class Duel extends Scene {
   private _currentTurn: Turn = "player";
   private _playersHand: Hand;
   private _turnMessage: Label;
+  private _gameBoard: GameBoard;
 
   constructor() {
     super();
+    this._gameBoard = new GameBoard();
     this._playersHand = new Hand(
       PLAYERS_CARDS,
       vec(PLAYER_HAND_START_X, PLAYER_HAND_START_Y),
@@ -41,6 +44,8 @@ export class Duel extends Scene {
 
   override onInitialize(engine: Engine): void {
     this.add(this._turnMessage);
+    this.add(this._gameBoard);
+    
     const playersHandMessage = new Label({
       text: "Your hand:",
       pos: vec(PLAYER_HAND_START_X, PLAYER_HAND_START_Y - 100),
@@ -50,7 +55,7 @@ export class Duel extends Scene {
     this._playersHand.Cards.forEach((card) =>
       card.events.on(CardEvents.Pressed, () => {
         console.log("Here");
-        this.addCardToBoard();
+        this.addCardToBoard(card);
         this.passTurn();
       }),
     );
@@ -60,15 +65,16 @@ export class Duel extends Scene {
     this._currentTurn = this._currentTurn == "player" ? "enemy" : "player";
   }
 
-  addCardToBoard() {}
+  addCardToBoard(card: Card) {
+      this.emit(PLAY_CARD_EVENT, { entity: 'PLAYER', card: card });
+  }
 
   override onPreLoad(loader: DefaultLoader): void {
     // Add any scene specific resources to load
   }
 
   override onActivate(context: SceneActivationContext<unknown>): void {
-    // Called when Excalibur transitions to this scene
-    // Only 1 scene is active at a time
+    this.emit(GAME_START_EVENT);
   }
 
   override onDeactivate(context: SceneActivationContext): void {
