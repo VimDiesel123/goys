@@ -8,7 +8,7 @@ import {
   Vector,
 } from "excalibur";
 
-export const CARD_WIDTH = 150;
+export const CARD_WIDTH = 80;
 
 export const CardEvents = {
   Pressed: "cardpressed",
@@ -19,9 +19,12 @@ export class Card extends Actor {
 
   constructor(name: string) {
     super({
-      width: 150,
-      height: 150,
+      width: 80,
+      height: 80,
       color: Color.Chartreuse,
+      // ew
+      x: 850,
+      y: 500,
     });
 
     this._label = new Label({
@@ -29,7 +32,7 @@ export class Card extends Actor {
       font: new Font({
         family: "Comic Sans MS",
         textAlign: TextAlign.Center,
-        size: 24,
+        size: 16,
         color: Color.Magenta,
       }),
     });
@@ -39,11 +42,16 @@ export class Card extends Actor {
     this.pos = position;
   }
 
+  public moveToBoard() {
+      this.color = Color.Red;
+      this._label.color = Color.White;
+  }
+
   onInitialize(engine: Engine): void {
     this.addChild(this._label);
     this.events.on("pointerdown", () => {
       console.log("Card pressed");
-      this.events.emit(CardEvents.Pressed);
+      this.events.emit(CardEvents.Pressed, { card: this });
     });
   }
 }

@@ -20,8 +20,8 @@ export const UPDATE_HEALTH_EVENT = "UPDATE_HEALTH_EVENT";
 const MAX_HAND_SIZE = 5;
 
 export class GameBoard extends ex.Actor {
-    private turnNumber: number;
-    private turn: 'PLAYER' | 'ENEMY' | 'NONE';
+    public turnNumber: number;
+    public turn: 'PLAYER' | 'ENEMY' | 'NONE';
 
     public playerHealth: number;
     public playerMana: number;
@@ -83,13 +83,18 @@ export class GameBoard extends ex.Actor {
         });
 
         this.on(TURN_START_EVENT, (data: any) => {
-            console.log(`${data.entity}'s ${data.turnNumber} START`);
+            console.log(`${data.entity}'s ${this.turnNumber} TURN START`);
             this.turn = data.entity;
-            this.emit(UPDATE_MANA_EVENT, { entity: 'PLAYER', mana: 1 * this.turnNumber } );
+            this.emit(UPDATE_MANA_EVENT, { entity: data.entity, mana: 1 * this.turnNumber } );
+            if (this.turnNumber === 1) {
+                this.emit(DRAW_CARD_EVENT, { entity: data.entity, numDraws: 5});
+            } else {
+                this.emit(DRAW_CARD_EVENT, { entity: data.entity, numDraws: 1});
+            }
         });
 
-        this.on(TURN_END_EVENT, (data: any) => {
-            console.log(`${data.entity}'s ${this.turnNumber} END`);
+        this.scene?.on(TURN_END_EVENT, (data: any) => {
+            console.log(`${data.entity}'s ${this.turnNumber} TURN END`);
             if(data.entity === 'PLAYER') {
                 this.emit(TURN_START_EVENT, { entity: 'ENEMY' });
             } else {
@@ -128,10 +133,9 @@ export class GameBoard extends ex.Actor {
     }
 
     buildDeck() {
-        const goblins = Array(10).fill(new Card("Goblin"));
-        const wizards = Array(10).fill(new Card("Wizard"));
+        const goblins = Array.from({ length: 10 }, () => new Card("Goblin"));
+        const wizards = Array.from({ length: 10 }, () => new Card("Wizard"));
         const deck = [...goblins, ...wizards]
-        
         return deck;
     }
 
