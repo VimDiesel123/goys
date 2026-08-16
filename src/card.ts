@@ -17,9 +17,8 @@ export const CardEvents = {
 export class Card extends Actor {
   private readonly _label: Label;
 
-  constructor(name: string, position: Vector) {
+  constructor(name: string) {
     super({
-      pos: position,
       width: 150,
       height: 150,
       color: Color.Chartreuse,
@@ -36,8 +35,15 @@ export class Card extends Actor {
     });
   }
 
+  public setPosition(position: Vector) {
+    this.pos = position;
+  }
+
   onInitialize(engine: Engine): void {
     this.addChild(this._label);
-    this.events.on("pointerdown", () => this.events.emit(CardEvents.Pressed));
+    this.events.on("pointerdown", () => {
+      console.log("Card pressed");
+      this.events.emit(CardEvents.Pressed);
+    });
   }
 }

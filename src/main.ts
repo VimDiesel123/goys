@@ -1,6 +1,6 @@
 import { Color, DisplayMode, Engine, FadeInOut } from "excalibur";
 import { loader } from "./resources";
-import { Duel } from "./battle";
+import { Duel } from "./duel";
 
 // Goal is to keep main.ts small and just enough to configure the engine
 
