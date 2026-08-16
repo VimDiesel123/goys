@@ -3,8 +3,11 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
     "sourceMap": true,
@@ -15,5 +18,7 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true
   },
-  "include": ["./src"]
+  "include": [
+    "./src"
+  ]
 }
