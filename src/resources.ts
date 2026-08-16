@@ -1,10 +1,55 @@
-import { ImageSource, Loader } from "excalibur";
+import { ImageSource, Loader, Font, FontUnit, Color, TextAlign, vec } from "excalibur";
 
 // It is convenient to put your resources in one place
 export const Resources = {
-  Sword: new ImageSource("./images/sword.png") // Vite public/ directory serves the root images
+  BirdImage: new ImageSource("./images/sword.png"),
+  RedCardFrame: new ImageSource("./images/red_frame.webp"),
+  RedCardBanner: new ImageSource("./images/red_banner.webp"),
+  RedCardBorder: new ImageSource("./images/red_border.webp"),
+  BlueCardFrame: new ImageSource("./images/blue_frame.webp"),
+  BlueCardBanner: new ImageSource("./images/blue_banner.webp"),
+  BlueCardBorder: new ImageSource("./images/blue_border.webp"),
+  CardMana: new ImageSource("./images/mana.webp"),
+  CardAttack: new ImageSource("./images/attack.webp"),
+  GoblinImage: new ImageSource("./images/goblin.jpg"),
+  WizardImage: new ImageSource("./images/wizard.jpg"),
 } as const; // the 'as const' is a neat typescript trick to get strong typing on your resources. 
 // So when you type Resources.Sword -> ImageSource
+
+export const Portraits: Record<string, ex.ImageSource> = {
+  goblin: Resources.GoblinImage,
+  wizard: Resources.WizardImage,
+};
+
+export const Frames: Record<string, ex.ImageSource> = {
+  red: Resources.RedCardFrame,
+  blue: Resources.BlueCardFrame,
+};
+
+export const Banners: Record<string, ex.ImageSource> = {
+  red: Resources.RedCardBanner,
+  blue: Resources.BlueCardBanner,
+};
+
+export const Borders: Record<string, ex.ImageSource> = {
+  red: Resources.RedCardBorder,
+  blue: Resources.BlueCardBorder,
+};
+
+export const NameFont = new Font({
+  size: 16,
+  unit: FontUnit.Px,
+  family: "sans-serif",
+  color: Color.White,
+  bold: true,
+  textAlign: TextAlign.Center,
+  //baseAlign: BaseAlign.Middle,
+  shadow: {
+    blur: 2,
+    offset: vec(2, 2),
+    color: Color.Black,
+  },
+});
 
 // We build a loader and add all of our resources to the boot loader
 // You can build your own loader by extending DefaultLoader

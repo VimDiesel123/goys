@@ -10,16 +10,34 @@ import {
   vec,
   Vector,
 } from "excalibur";
-import { Card, CARD_WIDTH, CardEvents } from "./card";
+import { Card, CARD_WIDTH, CardEvents, CardData } from "./card";
 import { Hand } from "./hand";
+
+const goblinData: CardData = {
+  name: "Goblin",
+  manaCost: 1,
+  power: 1,
+  toughness: 1,
+  portrait: "goblin",
+  type: "red",
+};
+const wizardData: CardData = {
+  name: "Wizard",
+  manaCost: 2,
+  power: 2,
+  toughness: 2,
+  portrait: "wizard",
+  type: "blue",
+  effect: "Tap to deal 1 damage to any target.",
+};
 
 type Turn = "player" | "enemy";
 const PLAYER_HAND_START_X = 100;
 const PLAYER_HAND_START_Y = 400;
 const PLAYERS_CARDS: Card[] = [
-  new Card("Goblin"),
-  new Card("Monster"),
-  new Card("Ghoul"),
+  new Card(goblinData),
+  new Card(wizardData),
+  new Card(goblinData),
 ];
 
 export class Duel extends Scene {
@@ -60,7 +78,7 @@ export class Duel extends Scene {
     this._currentTurn = this._currentTurn == "player" ? "enemy" : "player";
   }
 
-  addCardToBoard() {}
+  addCardToBoard() { }
 
   override onPreLoad(loader: DefaultLoader): void {
     // Add any scene specific resources to load
