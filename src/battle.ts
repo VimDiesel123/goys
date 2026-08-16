@@ -10,16 +10,50 @@ import {
   vec,
   Vector,
 } from "excalibur";
+import { Card, CARD_WIDTH, CardEvents } from "./card";
 
-export class MyLevel extends Scene {
+type Turn = "player" | "enemy";
+const _playerHandStartX = 100;
+const _playerHandStartY = 500;
+
+export class Duel extends Scene {
+  private _currentTurn: Turn = "player";
+
+  private _playersHand: Card[] = [
+    new Card("Goblin", vec(_playerHandStartX, _playerHandStartY + 20)),
+    new Card(
+      "Monster",
+      vec(_playerHandStartX + CARD_WIDTH + 25, _playerHandStartY + 20),
+    ),
+    new Card(
+      "Ghoul",
+      vec(_playerHandStartX + CARD_WIDTH * 2 + 50, _playerHandStartY + 20),
+    ),
+  ];
+
   override onInitialize(engine: Engine): void {
     console.log("Initializing scene");
-    const label = new Label({
-      text: "Your move, gamer.",
+    const turnMessage = new Label({
+      text:
+        this._currentTurn == "player"
+          ? "Your move, gamer."
+          : "Everything is are already in motion...",
       pos: vec(100, 100),
-      font: new Font({ family: "comic sans", size: 64 }),
+      font: new Font({ family: "Comic Sans MS", size: 64 }),
     });
-    this.add(label);
+    this.add(turnMessage);
+
+    const playersHandMessage = new Label({
+      text: "Your hand:",
+      pos: vec(_playerHandStartX, _playerHandStartY - 100),
+    });
+    this.add(playersHandMessage);
+    this._playersHand.forEach((card) => this.add(card));
+    this._playersHand.forEach((card) =>
+      card.events.on(CardEvents.Pressed, () =>
+        console.log("A card was pressed"),
+      ),
+    );
   }
 
   override onPreLoad(loader: DefaultLoader): void {
