@@ -142,6 +142,15 @@ export class GameBoard extends ex.Actor {
     console.log("Game board ready");
   }
 
+  shuffle(deck: Card[]) {
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+  }
+
   buildDeck() {
     const goblinData: CardData = {
       name: "Goblin",
@@ -164,7 +173,7 @@ export class GameBoard extends ex.Actor {
     const goblins = Array.from({ length: 10 }, () => new Card(goblinData));
     const wizards = Array.from({ length: 10 }, () => new Card(wizardData));
     const deck = [...goblins, ...wizards];
-    return deck;
+    return this.shuffle(deck);
   }
 
   draw(
@@ -242,7 +251,7 @@ export class GameBoard extends ex.Actor {
   playCard(entity: "PLAYER" | "ENEMY", card: Card) {
     console.log(`${entity} playing ${card.name}`);
     if (entity === "PLAYER") {
-      if (this.playerMana > 0) {
+      if (this.playerMana >= card.manaCost) {
         this.playerBoard.push(card);
         this.playerHand = this.playerHand.filter((c) => c !== card);
         this.emit(UPDATE_MANA_EVENT, {
@@ -253,7 +262,7 @@ export class GameBoard extends ex.Actor {
         console.log(`${entity} does not have enough mana to play ${card.name}`);
       }
     } else {
-      if (this.enemyMana > 0) {
+      if (this.enemyMana >= card.manaCost) {
         this.enemyBoard.push(card);
         this.enemyHand = this.enemyHand.filter((c) => c !== card);
         this.emit(UPDATE_MANA_EVENT, {

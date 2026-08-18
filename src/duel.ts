@@ -20,6 +20,7 @@ import {
   PLAY_CARD_EVENT,
   TURN_END_EVENT,
 } from "./game_board";
+import { Enemy } from "./enemy";
 
 const PLAYER_HAND_START_X = 200;
 const PLAYER_HAND_START_Y = 450;
@@ -37,6 +38,7 @@ const SPACE_BETWEEN_CARDS = 25;
 
 export class Duel extends Scene {
   private _gameBoard: GameBoard;
+  private _enemy: Enemy;
   private _playerHand: Set<number>;
   private _playerBoard: Set<number>;
 
@@ -76,7 +78,9 @@ export class Duel extends Scene {
 
   constructor() {
     super();
-    this._gameBoard = new GameBoard();
+    const gameBoard = new GameBoard();
+    this._gameBoard = gameBoard;
+    this._enemy = new Enemy(gameBoard);
     this._playerHand = new Set();
     this._playerBoard = new Set();
   }
@@ -84,6 +88,7 @@ export class Duel extends Scene {
   override onInitialize(engine: Engine): void {
     this.add(this._turnMessage);
     this.add(this._gameBoard);
+    this.add(this._enemy);
 
     const deck = new Actor({
       width: 100,
