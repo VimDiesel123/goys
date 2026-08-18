@@ -6,11 +6,18 @@ import {
   Sprite,
   vec,
   Text,
-  GraphicsGroup
+  GraphicsGroup,
 } from "excalibur";
-import { Resources, Portraits, Frames, Borders, Banners, NameFont } from './resources';
+import {
+  Resources,
+  Portraits,
+  Frames,
+  Borders,
+  Banners,
+  NameFont,
+} from "./resources";
 
-export const CARD_WIDTH = 150;
+export const CARD_WIDTH = 80;
 
 export const CardEvents = {
   Pressed: "cardpressed",
@@ -37,9 +44,12 @@ export class Card extends Actor {
 
   constructor(data: CardData) {
     super({
-      width: 150,
-      height: 150,
+      width: 80,
+      height: 80,
       color: Color.Chartreuse,
+      // ew
+      x: 850,
+      y: 500,
     });
     this.name = data.name;
     this.manaCost = data.manaCost;
@@ -52,6 +62,10 @@ export class Card extends Actor {
 
   public setPosition(position: Vector) {
     this.pos = position;
+  }
+
+  public moveToBoard() {
+    this.color = Color.Red;
   }
 
   onInitialize(engine: Engine): void {
@@ -75,11 +89,11 @@ export class Card extends Actor {
       image: Resources.CardMana,
       scale: vec(0.5, 0.5),
     });
-    var name = new Text({
+    let name = new Text({
       text: this.name,
       font: NameFont,
     });
-    var manaCost = new Text({
+    let manaCost = new Text({
       text: this.manaCost.toString(),
       font: NameFont,
     });
@@ -97,7 +111,7 @@ export class Card extends Actor {
         {
           graphic: manaCost,
           offset: vec(mana.width / 2 - 2, mana.height / 2 - 9),
-          useBounds: false
+          useBounds: false,
         },
       ],
     });
@@ -140,7 +154,7 @@ export class Card extends Actor {
     this.graphics.use(group);
     this.events.on("pointerdown", () => {
       console.log("Card pressed");
-      this.events.emit(CardEvents.Pressed);
+      this.events.emit(CardEvents.Pressed, { card: this });
     });
   }
 }

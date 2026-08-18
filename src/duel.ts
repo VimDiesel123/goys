@@ -1,92 +1,135 @@
 import {
   Actor,
+  BaseAlign,
+  Color,
   DefaultLoader,
   Engine,
+  EasingFunctions,
   ExcaliburGraphicsContext,
   Font,
   Label,
   Scene,
   SceneActivationContext,
+  TextAlign,
   vec,
-  Vector,
 } from "excalibur";
-import { Card, CARD_WIDTH, CardEvents, CardData } from "./card";
-import { Hand } from "./hand";
+import { Card, CARD_WIDTH, CardEvents } from "./card";
+import {
+  GAME_START_EVENT,
+  GameBoard,
+  PLAY_CARD_EVENT,
+  TURN_END_EVENT,
+} from "./game_board";
 
-const goblinData: CardData = {
-  name: "Goblin",
-  manaCost: 1,
-  power: 1,
-  toughness: 1,
-  portrait: "goblin",
-  type: "red",
-};
-const wizardData: CardData = {
-  name: "Wizard",
-  manaCost: 2,
-  power: 2,
-  toughness: 2,
-  portrait: "wizard",
-  type: "blue",
-  effect: "Tap to deal 1 damage to any target.",
-};
+const PLAYER_HAND_START_X = 200;
+const PLAYER_HAND_START_Y = 450;
 
-type Turn = "player" | "enemy";
-const PLAYER_HAND_START_X = 100;
-const PLAYER_HAND_START_Y = 400;
-const PLAYERS_CARDS: Card[] = [
-  new Card(goblinData),
-  new Card(wizardData),
-  new Card(goblinData),
-];
+const PLAYER_DECK_START_X = 850;
+const PLAYER_DECK_START_Y = 500;
+
+const PLAYER_MANA_START_X = 750;
+const PLAYER_MANA_START_Y = 500;
+
+const PLAYER_BOARD_START_X = 225;
+const PLAYER_BOARD_START_Y = 300;
+
+const SPACE_BETWEEN_CARDS = 25;
 
 export class Duel extends Scene {
-  private _currentTurn: Turn = "player";
-  private _playersHand: Hand;
-  private _turnMessage: Label;
+  private _gameBoard: GameBoard;
+  private _playerHand: Set<number>;
+  private _playerBoard: Set<number>;
+
+  private _endTurn = new Label({
+    text: "End turn",
+    font: new Font({
+      family: "Comic Sans MS",
+      textAlign: TextAlign.Center,
+      size: 36,
+      color: Color.White,
+    }),
+    pos: vec(350, 100),
+  });
+  private _turnMessage = new Label({
+    pos: vec(100, 25),
+    font: new Font({ family: "Comic Sans MS", size: 64 }),
+  });
+  private _deckLabel = new Label({
+    text: "0",
+    font: new Font({
+      family: "Comic Sans MS",
+      textAlign: TextAlign.Center,
+      size: 24,
+      color: Color.Magenta,
+    }),
+  });
+  private _manaLabel = new Label({
+    text: "0",
+    font: new Font({
+      family: "Comic Sans MS",
+      textAlign: TextAlign.Center,
+      baseAlign: BaseAlign.Middle,
+      size: 18,
+      color: Color.Magenta,
+    }),
+  });
 
   constructor() {
     super();
-    this._playersHand = new Hand(
-      PLAYERS_CARDS,
-      vec(PLAYER_HAND_START_X, PLAYER_HAND_START_Y),
-    );
-    this._turnMessage = new Label({
-      pos: vec(100, 100),
-      font: new Font({ family: "Comic Sans MS", size: 64 }),
-    });
+    this._gameBoard = new GameBoard();
+    this._playerHand = new Set();
+    this._playerBoard = new Set();
   }
 
   override onInitialize(engine: Engine): void {
     this.add(this._turnMessage);
+    this.add(this._gameBoard);
+
+    const deck = new Actor({
+      width: 100,
+      height: 100,
+      color: Color.Chartreuse,
+      pos: vec(PLAYER_DECK_START_X, PLAYER_DECK_START_Y),
+    }).addChild(this._deckLabel);
+
+    const manaOrb = new Actor({
+      radius: 30,
+      color: Color.Orange,
+      pos: vec(PLAYER_MANA_START_X, PLAYER_MANA_START_Y),
+    }).addChild(this._manaLabel);
+
+    const playerDeckMessage = new Label({
+      text: "Your Deck",
+      pos: vec(PLAYER_DECK_START_X - 25, PLAYER_DECK_START_Y - 65),
+    });
+
+    this.add(playerDeckMessage);
+    this.add(deck);
+    this.add(manaOrb);
+
     const playersHandMessage = new Label({
       text: "Your hand:",
-      pos: vec(PLAYER_HAND_START_X, PLAYER_HAND_START_Y - 100),
+      pos: vec(PLAYER_HAND_START_X - 25, PLAYER_HAND_START_Y - 65),
     });
     this.add(playersHandMessage);
-    this.add(this._playersHand);
-    this._playersHand.Cards.forEach((card) =>
-      card.events.on(CardEvents.Pressed, () => {
-        console.log("Here");
-        this.addCardToBoard();
-        this.passTurn();
-      }),
-    );
+
+    this._endTurn.on("pointerdown", (evt) => {
+      console.log("PLAYER ended turn");
+      this.emit(TURN_END_EVENT, { entity: "PLAYER" });
+    });
+    this.add(this._endTurn);
   }
 
-  passTurn() {
-    this._currentTurn = this._currentTurn == "player" ? "enemy" : "player";
+  addCardToBoard(card: Card) {
+    this.emit(PLAY_CARD_EVENT, { entity: "PLAYER", card: card });
   }
-
-  addCardToBoard() { }
 
   override onPreLoad(loader: DefaultLoader): void {
     // Add any scene specific resources to load
   }
 
   override onActivate(context: SceneActivationContext<unknown>): void {
-    // Called when Excalibur transitions to this scene
-    // Only 1 scene is active at a time
+    this.emit(GAME_START_EVENT);
   }
 
   override onDeactivate(context: SceneActivationContext): void {
@@ -95,10 +138,57 @@ export class Duel extends Scene {
   }
 
   override onPreUpdate(engine: Engine, elapsedMs: number): void {
-    this._turnMessage.text =
-      this._currentTurn == "player"
-        ? "Your move, gamer."
-        : "Everything is are already in motion...";
+    if (this._gameBoard.turn === "PLAYER") {
+      this._turnMessage.text = "Your move, gamer.";
+    } else {
+      this._turnMessage.text = "Everything is already in motion...";
+    }
+
+    this._deckLabel.text = this._gameBoard.playerDeck.length.toString();
+    this._manaLabel.text = this._gameBoard.playerMana.toString();
+
+    const numCardsInHand = this._playerHand.size;
+    const newHandCards = this._gameBoard.playerHand.filter(
+      (c) => !this._playerHand.has(c.id),
+    );
+    newHandCards.forEach((card, index) => {
+      const cardPos = vec(
+        PLAYER_HAND_START_X +
+          (CARD_WIDTH * index +
+            numCardsInHand +
+            SPACE_BETWEEN_CARDS * index +
+            numCardsInHand),
+        PLAYER_HAND_START_Y,
+      );
+      card.events.on(CardEvents.Pressed, () => {
+        console.log("she goin");
+        this.emit(PLAY_CARD_EVENT, { entity: "PLAYER", card });
+      });
+      this._playerHand.add(card.id);
+      card.actions.moveTo(cardPos, 500, EasingFunctions.EaseInOutCubic);
+      this.add(card);
+    });
+
+    const numCardsOnBoard = this._playerBoard.size;
+    const newBoardCards = this._gameBoard.playerBoard.filter(
+      (c) => !this._playerBoard.has(c.id),
+    );
+    newBoardCards.forEach((card, index) => {
+      const cardPos = vec(
+        PLAYER_BOARD_START_X +
+          (CARD_WIDTH * index +
+            numCardsOnBoard +
+            SPACE_BETWEEN_CARDS * index +
+            numCardsOnBoard),
+        PLAYER_BOARD_START_Y,
+      );
+
+      card.actions.moveTo(cardPos, 250, EasingFunctions.EaseInCubic);
+      card.moveToBoard();
+
+      this._playerBoard.add(card.id);
+      this.add(card);
+    });
   }
 
   override onPostUpdate(engine: Engine, elapsedMs: number): void {
