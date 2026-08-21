@@ -1,5 +1,6 @@
 import * as ex from 'excalibur';
 import { Card } from "./card";
+import { Resources } from "./resources"
 import { DECLARE_ATTACK_EVENT, DRAW_CARD_EVENT, GameBoard, PLAY_CARD_EVENT, TURN_END_EVENT, TURN_START_EVENT } from './game_board';
 
 const ENEMY_TURN_START = "ENEMY_TURN_START";
@@ -96,14 +97,19 @@ class EnemyStateMachine {
                 break;
         }
     }
+
+    get state(): string {
+        return this._currentState;
+    }
 }
 
 export class Enemy extends ex.Actor {
     private _fsm: EnemyStateMachine;
     private _gameBoard: GameBoard;
-
+    
     public mana = 0;
     public hand: Card[] = [];
+    public readonly sprite: ex.Sprite = Resources.EnemyImage.toSprite();
 
     constructor(gameBoard: GameBoard) {
         super();
@@ -124,6 +130,10 @@ export class Enemy extends ex.Actor {
         this.mana = this._gameBoard.enemyMana;
         this.hand = this._gameBoard.enemyHand;
         this._fsm.handle(elapsed);
+    }
+
+    currentState(): string {
+        return this._fsm.state;
     }
 }
 

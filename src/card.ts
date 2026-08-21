@@ -17,7 +17,7 @@ import {
   NameFont,
 } from "./resources";
 
-export const CARD_WIDTH = 80;
+export const CARD_WIDTH = 80 * 0.80;
 
 export const CardEvents = {
   Pressed: "cardpressed",
@@ -44,10 +44,7 @@ export class Card extends Actor {
 
   constructor(data: CardData) {
     super({
-      width: 80,
-      height: 80,
-      color: Color.Chartreuse,
-      // ew
+    // ew
       x: 850,
       y: 500,
     });
@@ -62,10 +59,6 @@ export class Card extends Actor {
 
   public setPosition(position: Vector) {
     this.pos = position;
-  }
-
-  public moveToBoard() {
-    this.color = Color.Red;
   }
 
   onInitialize(engine: Engine): void {
@@ -151,6 +144,8 @@ export class Card extends Actor {
         },
       ],
     });
+    group.scale = vec(0.80, 0.80);
+
     this.graphics.use(group);
     this.events.on("pointerdown", () => {
       console.log("Card pressed");

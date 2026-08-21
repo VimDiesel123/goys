@@ -69,6 +69,9 @@ export class GameBoard extends ex.Actor {
     this.playerDeck = this.buildDeck();
     this.enemyDeck = this.buildDeck();
 
+    this.playerMana = 1;
+    this.enemyMana = 1;
+
     this.turn = "PLAYER";
     this.turnNumber = 1;
   }
@@ -120,10 +123,10 @@ export class GameBoard extends ex.Actor {
     this.on(UPDATE_HEALTH_EVENT, (data: any) => {
       this.updateHealth(data.entity, data.health);
 
-      if (this.playerHealth <= 0) {
-        this.emit(GAME_END_EVENT, { winner: "ENEMY" });
-      } else if (this.enemyHealth <= 0) {
-        this.emit(GAME_END_EVENT, { winner: "PLAYER" });
+      if (this.playerHealth === 0) {
+        this.scene?.emit(GAME_END_EVENT, { winner: "ENEMY" });
+      } else if (this.enemyHealth === 0) {
+        this.scene?.emit(GAME_END_EVENT, { winner: "PLAYER" });
       }
     });
 
@@ -183,11 +186,12 @@ export class GameBoard extends ex.Actor {
     numDraws: number,
   ): Card[][] {
     var hand = startingHand;
-    for (let i = 0; i < numDraws; i++) {
+    for (let i = 0; i < numDraws; i++) 
+    {
       const nextCard = deck.shift();
 
       if (!nextCard) {
-        deck = discard;
+        deck = this.shuffle(discard);
         discard = [];
 
         return this.draw(hand, deck, discard, numDraws - i);
@@ -216,10 +220,10 @@ export class GameBoard extends ex.Actor {
   updateHealth(entity: "PLAYER" | "ENEMY", value: number) {
     if (entity === "PLAYER") {
       console.log(`Updating PLAYER'S HEALTH: ${this.playerHealth} => ${value}`);
-      this.playerHealth = value;
+      this.playerHealth = Math.max(value, 0);
     } else {
       console.log(`Updating ENEMY'S HEALTH: ${this.enemyHealth} => ${value}`);
-      this.enemyHealth = value;
+      this.enemyHealth = Math.max(value, 0);
     }
   }
 
@@ -256,7 +260,7 @@ export class GameBoard extends ex.Actor {
         this.playerHand = this.playerHand.filter((c) => c !== card);
         this.emit(UPDATE_MANA_EVENT, {
           entity: "PLAYER",
-          mana: this.playerMana - 1,
+          mana: this.playerMana - card.manaCost,
         });
       } else {
         console.log(`${entity} does not have enough mana to play ${card.name}`);
@@ -267,7 +271,7 @@ export class GameBoard extends ex.Actor {
         this.enemyHand = this.enemyHand.filter((c) => c !== card);
         this.emit(UPDATE_MANA_EVENT, {
           entity: "ENEMY",
-          mana: this.enemyMana - 1,
+          mana: this.enemyMana - card.manaCost,
         });
       } else {
         console.log(`${entity} does not have enough mana to play ${card.name}`);

@@ -11,6 +11,7 @@ export const Resources = {
   BlueCardBorder: new ImageSource("./images/blue_border.webp"),
   CardMana: new ImageSource("./images/mana.webp"),
   CardAttack: new ImageSource("./images/attack.webp"),
+  EnemyImage: new ImageSource("./images/enemy.webp"),
   GoblinImage: new ImageSource("./images/goblin.jpg"),
   WizardImage: new ImageSource("./images/wizard.jpg"),
 } as const; // the 'as const' is a neat typescript trick to get strong typing on your resources. 
