@@ -53,5 +53,4 @@ game
   })
   .then(() => {
     // Do something after the game starts
-    const screenCard = new ScreenCard(new Card(wizardData));
   });

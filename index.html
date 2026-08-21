@@ -11,24 +11,27 @@
 
 <body>
   <main>
-    <div id="hand-card">
-      <div id="hand-card__mana">
-        <span id="hand-card__mana-cost">1</span>
-      </div>
-      <div id="hand-card__frame">
-        <div id="hand-card__effect-box">
-          <span id="hand-card__effect-text">Tap to deal 1 damage to any target.</span>
+    <template id="hand-card-template">
+      <div class="hand-card">
+        <div class="hand-card__mana">
+          <span class="hand-card__mana-cost">1</span>
+        </div>
+        <div class="hand-card__frame">
+          <div class="hand-card__effect-box">
+            <span class="hand-card__effect-text">Tap to deal 1 damage to any target.</span>
+          </div>
+        </div>
+        <div class="hand-card__border"></div>
+        <div class="hand-card__banner">
+          <span class="hand-card__name">Card</span>
+        </div>
+        <div class="hand-card__portrait"></div>
+        <div class="hand-card__plaque">
+          <span class="hand-card__stats">1/1</span>
         </div>
       </div>
-      <div id="hand-card__border"></div>
-      <div id="hand-card__banner">
-        <span id="hand-card__name">Card</span>
-      </div>
-      <div id="hand-card__portrait"></div>
-      <div id="hand-card__plaque">
-        <span id="hand-card__stats">1/1</span>
-      </div>
-    </div>
+    </template>
+    <div id="hand">
 
     </div>
   </main>

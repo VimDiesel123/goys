@@ -1,10 +1,12 @@
-import { Actor, Color, vec, Vector } from "excalibur";
+import { Actor, Color, Engine, vec, Vector } from "excalibur";
 import { Card, CARD_WIDTH } from "./card";
+import { ScreenCard } from "./ui";
 
 const SPACE_BETWEEN_CARDS = 25;
 
 export class Hand extends Actor {
   public Cards: Card[];
+  public CardMap = new Map<Card, ScreenCard>();
 
   constructor(cards: Card[], position: Vector) {
     super({
@@ -18,5 +20,9 @@ export class Hand extends Actor {
         vec(position.x + CARD_WIDTH * index + SPACE_BETWEEN_CARDS * index, 0),
       ),
     );
+  }
+
+  override onInitialize(engine: Engine): void {
+    this.CardMap = new Map(this.Cards.map(card => [card, new ScreenCard(card)]));
   }
 }

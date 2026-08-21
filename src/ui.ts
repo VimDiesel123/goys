@@ -1,6 +1,9 @@
 import { Card } from "./card";
 import { Portraits, Frames, Banners, Borders, Plaques, Resources } from "./resources";
 
+const template = document.querySelector<HTMLTemplateElement>("#hand-card-template");
+const hand = document.getElementById("hand");
+
 export class ScreenCard {
     rootElement: HTMLElement;
     nameElement: HTMLElement;
@@ -16,17 +19,23 @@ export class ScreenCard {
 
     constructor(card: Card) {
         this.card = card;
+        const fragment = template!.content.cloneNode(true) as DocumentFragment;
+        const rootElement = fragment.querySelector<HTMLElement>(".hand-card");
 
-        const rootElement = document.getElementById("hand-card");
-        const nameElement = document.getElementById("hand-card__name");
-        const statElement = document.getElementById("hand-card__stats");
-        const manaElement = document.getElementById("hand-card__mana-cost");
-        const effectElement = document.getElementById("hand-card__effect-text");
-        const portraitElement = document.getElementById("hand-card__portrait");
-        const frameElement = document.getElementById("hand-card__frame");
-        const borderElement = document.getElementById("hand-card__border");
-        const bannerElement = document.getElementById("hand-card__banner");
-        const plaqueElement = document.getElementById("hand-card__plaque");
+        if (!rootElement || !hand) {
+            throw Error('Failed to initialize card.');
+        }
+
+        this.rootElement = rootElement;
+        const nameElement = rootElement.querySelector<HTMLElement>(".hand-card__name");
+        const statElement = rootElement.querySelector<HTMLElement>(".hand-card__stats");
+        const manaElement = rootElement.querySelector<HTMLElement>(".hand-card__mana-cost");
+        const effectElement = rootElement.querySelector<HTMLElement>(".hand-card__effect-text");
+        const portraitElement = rootElement.querySelector<HTMLElement>(".hand-card__portrait");
+        const frameElement = rootElement.querySelector<HTMLElement>(".hand-card__frame");
+        const borderElement = rootElement.querySelector<HTMLElement>(".hand-card__border");
+        const bannerElement = rootElement.querySelector<HTMLElement>(".hand-card__banner");
+        const plaqueElement = rootElement.querySelector<HTMLElement>(".hand-card__plaque");
 
 
         if (rootElement && nameElement && statElement && manaElement
@@ -63,6 +72,9 @@ export class ScreenCard {
         this.borderElement.style.backgroundImage = `url(${borderURL})`;
         this.frameElement.style.backgroundImage = `url(${frameURL})`;
         this.plaqueElement.style.backgroundImage = `url(${plaqueURL})`;
-        document.documentElement.style.setProperty('--hover-color', 'rgba(0, 255, 0, 0.67)');
+        this.rootElement.style.setProperty('visibility', 'visible');
+        this.rootElement.style.setProperty('--hover-color', 'rgba(0, 255, 0, 0.67)');
+
+        hand.appendChild(this.rootElement);
     }
 }
