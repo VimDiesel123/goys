@@ -183,7 +183,7 @@ export class GameBoard extends ex.Actor {
       effect: "Tap to deal 1 damage to any target.",
     };
 
-    //Hacky: Should be use global constant
+    //Hacky: Should be use constant
     const cardPos = entity === "PLAYER" ? ex.vec(800, 500) : ex.vec(800, 100)
     const goblins = Array.from({ length: 10 }, () => new Card(goblinData, cardPos));
     const wizards = Array.from({ length: 10 }, () => new Card(wizardData, cardPos));
@@ -291,10 +291,10 @@ export class GameBoard extends ex.Actor {
     }
   }
 
-  async attack(entity: "PLAYER" | "ENEMY") {
+  attack(entity: "PLAYER" | "ENEMY") {
     console.log(`${entity} is ATTACKING`);
     if (entity === "PLAYER") {
-      this.playerBoard.forEach(async card => {
+      this.playerBoard.forEach(card => {
         card.actions.clearActions();
         card.actions.rotateBy(Math.PI / 4, Math.PI, ex.RotationType.Clockwise);
         card.actions.easeTo(ex.vec(870, 225), 500, ex.EasingFunctions.EaseInCubic);
