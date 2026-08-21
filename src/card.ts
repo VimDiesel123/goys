@@ -56,19 +56,19 @@ export class Card extends Actor {
 
   onInitialize(engine: Engine): void {
     const portrait = new Sprite({
-      image: Portraits[this.portrait],
+      image: Portraits.get(this.portrait) ?? Resources.DefaultPortrait,
       scale: vec(0.25, 0.25),
     });
     const frame = new Sprite({
-      image: Frames[this.type],
+      image: Frames.get(this.type) ?? Resources.DefaultFrame,
       scale: vec(0.25, 0.25),
     });
     const border = new Sprite({
-      image: Borders[this.type],
+      image: Borders.get(this.type) ?? Resources.DefaultBorder,
       scale: vec(0.25, 0.25),
     });
     const banner = new Sprite({
-      image: Banners[this.type],
+      image: Banners.get(this.type) ?? Resources.DefaultBanner,
       scale: vec(0.25, 0.25),
     });
     const mana = new Sprite({

@@ -3,6 +3,11 @@ import { ImageSource, Loader, Font, FontUnit, Color, TextAlign, vec } from "exca
 // It is convenient to put your resources in one place
 export const Resources = {
   BirdImage: new ImageSource("./images/sword.png"),
+  DefaultPortrait: new ImageSource("./images/goblin.jpg"),
+  DefaultFrame: new ImageSource("./images/red_frame.webp"),
+  DefaultBanner: new ImageSource("./images/red_banner.webp"),
+  DefaultBorder: new ImageSource("./images/red_border.webp"),
+  DefaultPlaque: new ImageSource("./images/red_plaque.webp"),
   RedCardFrame: new ImageSource("./images/red_frame.webp"),
   RedCardBanner: new ImageSource("./images/red_banner.webp"),
   RedCardBorder: new ImageSource("./images/red_border.webp"),
@@ -18,30 +23,31 @@ export const Resources = {
 } as const; // the 'as const' is a neat typescript trick to get strong typing on your resources. 
 // So when you type Resources.Sword -> ImageSource
 
-export const Portraits: Record<string, ex.ImageSource> = {
-  goblin: Resources.GoblinImage,
-  wizard: Resources.WizardImage,
-};
+export const Portraits = new Map<string, ex.ImageSource>([
+  ["goblin", Resources.GoblinImage],
+  ["wizard", Resources.WizardImage],
+]);
 
-export const Frames: Record<string, ex.ImageSource> = {
-  red: Resources.RedCardFrame,
-  blue: Resources.BlueCardFrame,
-};
+export const Frames = new Map<string, ex.ImageSource>([
+  ["red", Resources.RedCardFrame],
+  ["blue", Resources.BlueCardFrame],
+]);
 
-export const Banners: Record<string, ex.ImageSource> = {
-  red: Resources.RedCardBanner,
-  blue: Resources.BlueCardBanner,
-};
 
-export const Borders: Record<string, ex.ImageSource> = {
-  red: Resources.RedCardBorder,
-  blue: Resources.BlueCardBorder,
-};
+export const Banners = new Map<string, ex.ImageSource>([
+  ["red", Resources.RedCardBanner],
+  ["blue", Resources.BlueCardBanner],
+]);
 
-export const Plaques: Record<string, ex.ImageSource> = {
-  red: Resources.RedCardPlaque,
-  blue: Resources.BlueCardPlaque,
-}
+export const Borders = new Map<string, ex.ImageSource>([
+  ["red", Resources.RedCardBorder],
+  ["blue", Resources.BlueCardBorder],
+]);
+
+export const Plaques = new Map<string, ex.ImageSource>([
+  ["red", Resources.RedCardPlaque],
+  ["blue", Resources.BlueCardPlaque],
+]);
 
 export const NameFont = new Font({
   size: 16,

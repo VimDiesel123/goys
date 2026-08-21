@@ -1,5 +1,5 @@
 import { Card } from "./card";
-import { Portraits, Frames, Banners, Borders, Plaques } from "./resources";
+import { Portraits, Frames, Banners, Borders, Plaques, Resources } from "./resources";
 
 export class ScreenCard {
     rootElement: HTMLElement;
@@ -13,7 +13,6 @@ export class ScreenCard {
     borderElement: HTMLElement;
     plaqueElement: HTMLElement;
     card: Card;
-    canPlay: boolean;
 
     constructor(card: Card) {
         this.card = card;
@@ -52,12 +51,18 @@ export class ScreenCard {
         this.manaElement.innerHTML = card.manaCost.toString();
         this.statElement.innerHTML = card.power.toString() + " / " + card.toughness.toString();
         this.effectElement.innerHTML = card.effect ? card.effect : "";
-        this.portraitElement.style.backgroundImage = `url(${Portraits[this.card.portrait].path})`;
-        this.bannerElement.style.backgroundImage = `url(${Banners[this.card.type].path})`;
-        this.borderElement.style.backgroundImage = `url(${Borders[this.card.type].path})`;
-        this.frameElement.style.backgroundImage = `url(${Frames[this.card.type].path})`;
-        this.plaqueElement.style.backgroundImage = `url(${Plaques[this.card.type].path})`;
-        this.canPlay = true;
+        const portraitURL = Portraits.get(this.card.portrait)?.path ?? Resources.DefaultPortrait.path;
+        const bannerURL = Banners.get(this.card.type)?.path ?? Resources.DefaultBanner.path;
+        const borderURL = Borders.get(this.card.type)?.path ?? Resources.DefaultBorder.path;
+        const frameURL = Frames.get(this.card.type)?.path ?? Resources.DefaultFrame.path;
+        const plaqueURL = Plaques.get(this.card.type)?.path ?? Resources.DefaultPlaque.path;
+        console.log(this.card.type)
+        console.log(portraitURL);
+        this.portraitElement.style.backgroundImage = `url(${portraitURL})`;
+        this.bannerElement.style.backgroundImage = `url(${bannerURL})`;
+        this.borderElement.style.backgroundImage = `url(${borderURL})`;
+        this.frameElement.style.backgroundImage = `url(${frameURL})`;
+        this.plaqueElement.style.backgroundImage = `url(${plaqueURL})`;
         document.documentElement.style.setProperty('--hover-color', 'rgba(0, 255, 0, 0.67)');
     }
 }
