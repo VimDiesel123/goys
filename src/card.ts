@@ -3,12 +3,7 @@ import {
   Color,
   Engine,
   Vector,
-  Sprite,
-  vec,
-  Text,
-  GraphicsGroup
 } from "excalibur";
-import { Resources, Portraits, Frames, Borders, Banners, NameFont } from './resources';
 
 export const CARD_WIDTH = 150;
 

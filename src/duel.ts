@@ -29,7 +29,7 @@ const wizardData: CardData = {
   toughness: 2,
   portrait: "wizard",
   type: "blue",
-  effect: "Tap to deal 1 damage to any target.",
+  effect: "Tap to deal 1 damage to any target. Tap to deal 1 damage to any target.",
 };
 
 type Turn = "player" | "enemy";

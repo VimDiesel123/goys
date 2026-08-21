@@ -1,4 +1,4 @@
-import { Card } from "./card";
+import { Card, CardEvents } from "./card";
 import { Portraits, Frames, Banners, Borders, Plaques, Resources } from "./resources";
 
 const template = document.querySelector<HTMLTemplateElement>("#hand-card-template");
@@ -74,6 +74,10 @@ export class ScreenCard {
         this.plaqueElement.style.backgroundImage = `url(${plaqueURL})`;
         this.rootElement.style.setProperty('visibility', 'visible');
         this.rootElement.style.setProperty('--hover-color', 'rgba(0, 255, 0, 0.67)');
+
+        this.rootElement.addEventListener('click', e => {
+            this.card.events.emit(CardEvents.Pressed);
+        })
 
         hand.appendChild(this.rootElement);
     }

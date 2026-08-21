@@ -6,13 +6,16 @@
   <link rel="icon" href="favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./src/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kreon:wght@300..700&display=swap" rel="stylesheet">
   <title>Excalibur + Vite</title>
 </head>
 
 <body>
   <main>
     <template id="hand-card-template">
-      <div class="hand-card">
+      <div class="hand-card" draggable="true">
         <div class="hand-card__mana">
           <span class="hand-card__mana-cost">1</span>
         </div>
@@ -23,7 +26,10 @@
         </div>
         <div class="hand-card__border"></div>
         <div class="hand-card__banner">
-          <span class="hand-card__name">Card</span>
+          <div class="hand-card__nameplate">
+            <span class="hand-card__name">Card</span>
+          </div>
+
         </div>
         <div class="hand-card__portrait"></div>
         <div class="hand-card__plaque">

@@ -4,7 +4,6 @@
   }
 }
 
-
 .hand-card {
   position: relative;
   top: 100px;
@@ -16,6 +15,10 @@
   transition-duration: 0.4s;
   transition-property: transform;
   box-shadow: 0px 0px 30px 0px transparent;
+
+  font-family: "Kreon", serif;
+  font-weight: 600;
+  color: #F9FAF5;
 }
 
 .hand-card:hover {
@@ -24,7 +27,6 @@
   transform: scale(1.05);
   z-index: 100;
 }
-
 
 .hand-card__frame {
   position: absolute;
@@ -37,11 +39,11 @@
   aspect-ratio: inherit;
   background-size: contain;
 
-  z-index: 1;
-
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
+  z-index: 1;
 }
 
 
@@ -55,6 +57,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
+
   z-index: 3;
 }
 
@@ -63,26 +66,36 @@
   top: 0;
   left: -5%;
   width: 110%;
+  height: 20%;
   background-image: url('/images/red_banner.webp');
   background-repeat: no-repeat;
   background-size: contain;
+
   z-index: 4;
-  height: 20%;
+}
+
+.hand-card__nameplate {
+  height: 65%;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
 
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
 }
 
 .hand-card__name {
-  font-size: calc(var(--card-width) * 0.06);
-  z-index: 5;
-  color: white;
-  text-align: center;
   width: 100%;
-  transform: translate(0, 90%);
-}
 
+  font-size: calc(var(--card-width) * 0.085);
+  text-shadow:
+    -2px -2px 0 #595959, 2px -2px 0 #595959, -2px 2px 0 #595959, 2px 2px 0 #595959,
+    -2px 0px 0 #595959, 2px 0px 0 #595959, 0px -2px 0 #595959, 0px 2px 0 #595959;
+  text-align: center;
+
+  z-index: 5;
+}
 
 .hand-card__portrait {
   position: absolute;
@@ -94,15 +107,15 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
+
   z-index: 0;
 }
-
 
 .hand-card__plaque {
   position: absolute;
   transform: translate(115%, 70%);
   width: 30%;
-  z-index: 6;
+
   aspect-ratio: 6 / 8.5;
   background-image: url('/images/red_plaque.webp');
   background-position: center;
@@ -112,20 +125,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  z-index: 6;
 }
 
 .hand-card__stats {
-  font-size: calc(var(--card-width) * 0.07);
+  font-size: calc(var(--card-width) * 0.08);
+
+  text-shadow:
+    -2px -2px 0 #595959, 2px -2px 0 #595959, -2px 2px 0 #595959, 2px 2px 0 #595959,
+    -2px 0px 0 #595959, 2px 0px 0 #595959, 0px -2px 0 #595959, 0px 2px 0 #595959;
   font-weight: bold;
-  z-index: 7;
-  color: white;
+
   text-align: center;
   width: 100%;
+
+  z-index: 7;
 }
 
 .hand-card__effect-box {
   width: 100%;
-  height: 50%;
+  height: 30%;
+  margin-bottom: 40px;
+  box-sizing: border-box;
+  overflow: hidden;
 
   display: flex;
   align-items: center;
@@ -133,10 +156,8 @@
 }
 
 .hand-card__effect-text {
-  font-size: calc(var(--card-width) * 0.05);
-  font-weight: bold;
+  font-size: calc(var(--card-width) * 0.07);
   z-index: 7;
-  color: white;
   text-align: center;
   width: 80%;
 }
@@ -147,6 +168,7 @@
   top: 0;
   left: 0;
   width: 20%;
+
 
   transform: translate(-30%, -30%);
   z-index: 8;
@@ -164,10 +186,15 @@
 .hand-card__mana-cost {
   font-size: calc(var(--card-width) * 0.1);
   font-weight: bold;
-  z-index: 7;
-  color: white;
+
+  text-shadow:
+    -2px -2px 0 #595959, 2px -2px 0 #595959, -2px 2px 0 #595959, 2px 2px 0 #595959,
+    -2px 0px 0 #595959, 2px 0px 0 #595959, 0px -2px 0 #595959, 0px 2px 0 #595959;
+
   text-align: center;
   width: 80%;
+
+  z-index: 7;
 }
 
 #hand {
