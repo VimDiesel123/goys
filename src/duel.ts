@@ -16,12 +16,15 @@ import {
 } from "excalibur";
 import { Card, CARD_WIDTH, CardEvents } from "./card";
 import {
+  DAMAGE_TAKEN_EVENT,
   DECLARE_ATTACK_EVENT,
   GAME_END_EVENT,
   GAME_START_EVENT,
   GameBoard,
   PLAY_CARD_EVENT,
   TURN_END_EVENT,
+  TURN_START_EVENT,
+  UPDATE_PENDING_EVENT
 } from "./game_board";
 import { Enemy } from "./enemy";
 
@@ -72,8 +75,7 @@ const DOWN_ARROW = "\u2193";
 export class Duel extends Scene {
   private _gameBoard: GameBoard;
   private _enemy: Enemy;
-  private _playerHand: Set<number>;
-  private _playerBoard: Set<number>;
+  private _updatePending: boolean;
 
   private _turnArrow = new Label({
       text: "?",
@@ -210,15 +212,14 @@ export class Duel extends Scene {
     const gameBoard = new GameBoard();
     this._gameBoard = gameBoard;
     this._enemy = new Enemy(gameBoard);
-    this._playerHand = new Set();
-    this._playerBoard = new Set();
+    this._updatePending = false;
   }
 
   override onInitialize(engine: Engine): void {
     this.add(this._turnMessage);
     this.add(this._gameBoard);
     this.add(this._enemy);
-
+    
     const title = new Actor({
         pos: vec(engine.screen.center.x / 2 + 525, engine.screen.center.y / 2 + 150)
     });
@@ -315,7 +316,7 @@ export class Duel extends Scene {
     });
      const enemyDiscardPileMessage = new Label({
       text: "Enemy Discard Pile",
-      pos: vec(ENEMY_DISCARD_START_X - 40, ENEMY_DISCARD_START_Y - 65),
+      pos: vec(ENEMY_DISCARD_START_X - 45, ENEMY_DISCARD_START_Y - 65),
     });
 
     this.add(title);
@@ -341,10 +342,12 @@ export class Duel extends Scene {
     this.add(enemyPortrait);
    
     this._endTurn.on("pointerdown", (_evt) => {
-        this.emit(TURN_END_EVENT, { entity: "PLAYER" });
+        const gameTurn = this._gameBoard.turn;
+        if (gameTurn === "PLAYER") this.emit(TURN_END_EVENT, { entity: "PLAYER" });
     });
     this._declareAttack.on("pointerdown", (_evt) => {
-        this.emit(DECLARE_ATTACK_EVENT, { entity: "PLAYER" });
+        const gameTurn = this._gameBoard.turn;
+        if (gameTurn === "PLAYER" && this._declareAttack.graphics.isVisible) this.emit(DECLARE_ATTACK_EVENT, { entity: "PLAYER" });
     });
 
     this.add(this._endTurn);
@@ -356,7 +359,7 @@ export class Duel extends Scene {
             this._gameOverMessage.graphics.color = Color.Green;
             this._gameOverMessage.graphics.isVisible = true;
             this._gameOverMessage.actions.moveTo(
-                vec(engine.screen.center.x / 2, engine.screen.center.y / 2), 2000, EasingFunctions.EaseInOutQuad
+                vec(engine.screen.center.x / 2 + 100, engine.screen.center.y / 2 + 150), 5000, EasingFunctions.EaseInOutQuad
             );
             
             this._turnMessage.graphics.isVisible = false;
@@ -364,7 +367,8 @@ export class Duel extends Scene {
             this._declareAttack.graphics.isVisible = false;
             this._turnArrow.graphics.isVisible = false;
 
-            engine.stop();
+            enemyPortrait.actions.fade(0, 2000)
+            enemyPortrait.actions.callMethod(() => engine.stop());
         } else {
             this._gameOverMessage.text = "YOU LOSE! Evil has triumphed";
             this._gameOverMessage.graphics.color = Color.Red;
@@ -385,6 +389,14 @@ export class Duel extends Scene {
     })
 
     this.add(this._gameOverMessage);
+    
+    this.on(UPDATE_PENDING_EVENT, (_evt) =>
+        this._updatePending = true
+    );
+    this.on(DAMAGE_TAKEN_EVENT, (evt: any) => {
+        if(evt.entity === "PLAYER") this._playerHealthLabel.actions.blink(250, 250, 2);
+        else this._enemyHealthLabel.actions.blink(250, 250, 2);
+    })
   }
 
   addCardToBoard(card: Card) {
@@ -397,6 +409,7 @@ export class Duel extends Scene {
 
   override onActivate(context: SceneActivationContext<unknown>): void {
     this.emit(GAME_START_EVENT);
+    this.emit(TURN_START_EVENT, { entity: "PLAYER" });
   }
 
   override onDeactivate(context: SceneActivationContext): void {
@@ -418,7 +431,7 @@ export class Duel extends Scene {
       this._turnArrow.graphics.color = Color.Red; 
     }
 
-    const canAttack = this._gameBoard.playerBoard.length > 0 && this._gameBoard.turn === "PLAYER";
+    const canAttack = this._gameBoard.playerBoard.length > 0 && this._gameBoard.turn === "PLAYER" && !this._gameBoard.hasAttackedThisTurn;
     this._declareAttack.graphics.isVisible = canAttack;
 
     this._playerDeckLabel.text = this._gameBoard.playerDeck.length.toString();
@@ -431,11 +444,10 @@ export class Duel extends Scene {
     this._enemyHealthLabel.text = this._gameBoard.enemyHealth.toString();
     this._enemyManaLabel.text = this._gameBoard.enemyMana.toString();
 
-    const numCardsInPlayerHand = this._playerHand.size;
-    const newPlayerHandCards = this._gameBoard.playerHand.filter(
-      (c) => !this._playerHand.has(c.id),
-    );
-    newPlayerHandCards.forEach((card, index) => {
+    if (!this._updatePending) return;
+
+    const numCardsInPlayerHand = this._gameBoard.playerHand.length;
+    this._gameBoard.playerHand.forEach((card, index) => {
       const cardPos = vec(
         PLAYER_HAND_START_X +
           (CARD_WIDTH * index +
@@ -444,19 +456,21 @@ export class Duel extends Scene {
             numCardsInPlayerHand),
         PLAYER_HAND_START_Y,
       );
+      
+      const isOverlapped = index === numCardsInPlayerHand - 1;
+      card.setOverlapped(isOverlapped);
+
+      card.off(CardEvents.Pressed);
       card.events.on(CardEvents.Pressed, () => {
         if(isPlayerTurn) this.emit(PLAY_CARD_EVENT, { entity: "PLAYER", card });
       });
-      this._playerHand.add(card.id);
+      card.actions.clearActions();
       card.actions.moveTo(cardPos, 500, EasingFunctions.EaseInOutCubic);
       this.add(card);
     });
 
     const numCardsInEnemyHand = this._gameBoard.enemyHand.length;
-    const newEnemyHandCards = this._gameBoard.enemyHand.filter(
-      (c) => !this._playerHand.has(c.id),
-    );
-    newEnemyHandCards.forEach((card, index) => {
+    this._gameBoard.enemyHand.forEach((card, index) => {
       const cardPos = vec(
         ENEMY_HAND_START_X +
           (CARD_WIDTH * index +
@@ -465,15 +479,13 @@ export class Duel extends Scene {
             numCardsInEnemyHand),
         ENEMY_HAND_START_Y,
       );
+      card.actions.clearActions();
       card.actions.moveTo(cardPos, 500, EasingFunctions.EaseInOutCubic);
       this.add(card);
     });
 
-    const numCardsOnPlayerBoard = this._playerBoard.size;
-    const newPlayerBoardCards = this._gameBoard.playerBoard.filter(
-      (c) => !this._playerBoard.has(c.id),
-    );
-    newPlayerBoardCards.forEach((card, index) => {
+    const numCardsOnPlayerBoard = this._gameBoard.playerBoard.length;
+    this._gameBoard.playerBoard.forEach((card, index) => {
       const cardPos = vec(
         PLAYER_BOARD_START_X +
           (CARD_WIDTH * index +
@@ -482,10 +494,8 @@ export class Duel extends Scene {
             numCardsOnPlayerBoard),
         PLAYER_BOARD_START_Y,
       );
-
+      card.actions.clearActions();
       card.actions.moveTo(cardPos, 250, EasingFunctions.EaseInCubic);
-
-      this._playerBoard.add(card.id);
       this.add(card);
     });
 
@@ -499,11 +509,12 @@ export class Duel extends Scene {
             numCardsOnEnemyBoard),
         ENEMY_BOARD_START_Y,
       );
-
+      card.actions.clearActions();
       card.actions.moveTo(cardPos, 250, EasingFunctions.EaseInCubic);
-
       this.add(card);
     });
+
+    this._updatePending = false;
   }
 
   override onPostUpdate(engine: Engine, elapsedMs: number): void {

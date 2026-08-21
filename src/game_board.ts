@@ -16,13 +16,17 @@ export const PLAY_CARD_EVENT = "PLAY_CARD_EVENT";
 export const DECLARE_ATTACK_EVENT = "DECLARE_ATTACK_EVENT";
 export const UPDATE_HEALTH_EVENT = "UPDATE_HEALTH_EVENT";
 
+export const UPDATE_PENDING_EVENT = "UPDATE_PENDING_EVENT";
+export const DAMAGE_TAKEN_EVENT = "DAMAGE_TAKEN_EVENT";
+
 // Globals
 const MAX_HAND_SIZE = 5;
 
-export class GameBoard extends ex.Actor {
+export class GameBoard extends ex.Actor { 
+  public hasAttackedThisTurn: boolean;
   public turnNumber: number;
   public turn: "PLAYER" | "ENEMY" | "NONE";
-
+  
   public playerHealth: number;
   public playerMana: number;
   public playerBoard: Card[];
@@ -42,6 +46,7 @@ export class GameBoard extends ex.Actor {
 
     this.turnNumber = 0;
     this.turn = "NONE";
+    this.hasAttackedThisTurn = false;
 
     this.playerHealth = 0;
     this.enemyHealth = 0;
@@ -66,14 +71,15 @@ export class GameBoard extends ex.Actor {
     this.playerHealth = 20;
     this.enemyHealth = 20;
 
-    this.playerDeck = this.buildDeck();
-    this.enemyDeck = this.buildDeck();
+    this.playerDeck = this.buildDeck("PLAYER");
+    this.enemyDeck = this.buildDeck("ENEMY");
 
     this.playerMana = 1;
     this.enemyMana = 1;
 
     this.turn = "PLAYER";
     this.turnNumber = 1;
+    this.hasAttackedThisTurn = false;
   }
 
   onInitialize(_engine: ex.Engine): void {
@@ -89,30 +95,30 @@ export class GameBoard extends ex.Actor {
         this.playerDeck.length,
         this.enemyDeck.length,
       );
-      this.emit(TURN_START_EVENT, { entity: "PLAYER", turn: this.turn });
     });
 
-    this.on(TURN_START_EVENT, (data: any) => {
+    this.scene?.on(TURN_START_EVENT, (data: any) => {
       console.log(`${data.entity}'s ${this.turnNumber} TURN START`);
       this.turn = data.entity;
+      this.hasAttackedThisTurn = false;
       this.emit(UPDATE_MANA_EVENT, {
         entity: data.entity,
         mana: 1 * this.turnNumber,
       });
       if (this.turnNumber === 1) {
-        this.emit(DRAW_CARD_EVENT, { entity: data.entity, numDraws: 5 });
+        this.scene?.emit(DRAW_CARD_EVENT, { entity: data.entity, numDraws: 5 });
       } else {
-        this.emit(DRAW_CARD_EVENT, { entity: data.entity, numDraws: 1 });
+        this.scene?.emit(DRAW_CARD_EVENT, { entity: data.entity, numDraws: 1 });
       }
     });
 
     this.scene?.on(TURN_END_EVENT, (data: any) => {
       console.log(`${data.entity}'s ${this.turnNumber} TURN END`);
       if (data.entity === "PLAYER") {
-        this.emit(TURN_START_EVENT, { entity: "ENEMY" });
+        this.scene?.emit(TURN_START_EVENT, { entity: "ENEMY" });
       } else {
         this.turnNumber += 1;
-        this.emit(TURN_START_EVENT, { entity: "PLAYER" });
+        this.scene?.emit(TURN_START_EVENT, { entity: "PLAYER" });
       }
     });
 
@@ -122,6 +128,7 @@ export class GameBoard extends ex.Actor {
 
     this.on(UPDATE_HEALTH_EVENT, (data: any) => {
       this.updateHealth(data.entity, data.health);
+      this.scene?.emit(DAMAGE_TAKEN_EVENT, { entity: data.entity });
 
       if (this.playerHealth === 0) {
         this.scene?.emit(GAME_END_EVENT, { winner: "ENEMY" });
@@ -130,15 +137,18 @@ export class GameBoard extends ex.Actor {
       }
     });
 
-    this.on(DRAW_CARD_EVENT, (data: any) => {
+    this.scene?.on(DRAW_CARD_EVENT, (data: any) => {
       this.drawCards(data.entity, data.numDraws);
+      this.scene?.emit(UPDATE_PENDING_EVENT);
     });
 
     this.scene?.on(PLAY_CARD_EVENT, (data: any) => {
       this.playCard(data.entity, data.card);
+      this.scene?.emit(UPDATE_PENDING_EVENT);
     });
 
     this.scene?.on(DECLARE_ATTACK_EVENT, (data: any) => {
+      this.hasAttackedThisTurn = true;
       this.attack(data.entity);
     });
 
@@ -154,7 +164,7 @@ export class GameBoard extends ex.Actor {
       return deck;
   }
 
-  buildDeck() {
+  buildDeck(entity) {
     const goblinData: CardData = {
       name: "Goblin",
       manaCost: 1,
@@ -173,8 +183,10 @@ export class GameBoard extends ex.Actor {
       effect: "Tap to deal 1 damage to any target.",
     };
 
-    const goblins = Array.from({ length: 10 }, () => new Card(goblinData));
-    const wizards = Array.from({ length: 10 }, () => new Card(wizardData));
+    //Hacky: Should be use global constant
+    const cardPos = entity === "PLAYER" ? ex.vec(800, 500) : ex.vec(800, 100)
+    const goblins = Array.from({ length: 10 }, () => new Card(goblinData, cardPos));
+    const wizards = Array.from({ length: 10 }, () => new Card(wizardData, cardPos));
     const deck = [...goblins, ...wizards];
     return this.shuffle(deck);
   }
@@ -279,20 +291,35 @@ export class GameBoard extends ex.Actor {
     }
   }
 
-  attack(entity: "PLAYER" | "ENEMY") {
+  async attack(entity: "PLAYER" | "ENEMY") {
     console.log(`${entity} is ATTACKING`);
     if (entity === "PLAYER") {
-      const damage = this.playerBoard.length;
-      this.emit(UPDATE_HEALTH_EVENT, {
-        entity: "ENEMY",
-        health: this.enemyHealth - damage,
+      this.playerBoard.forEach(async card => {
+        card.actions.clearActions();
+        card.actions.rotateBy(Math.PI / 4, Math.PI, ex.RotationType.Clockwise);
+        card.actions.easeTo(ex.vec(870, 225), 500, ex.EasingFunctions.EaseInCubic);
+        card.actions.easeTo(card.pos, 100, ex.EasingFunctions.EaseInCubic);
+        card.actions.rotateTo(0, Math.PI, ex.RotationType.CounterClockwise);
+        card.actions.callMethod(() => {
+            this.emit(UPDATE_HEALTH_EVENT, {
+                entity: "ENEMY",
+                health: this.enemyHealth - card.power,
+            });
+        });
       });
+
     } else {
-      const damage = this.enemyBoard.length;
-      this.emit(UPDATE_HEALTH_EVENT, {
-        entity: "PLAYER",
-        health: this.playerHealth - damage,
-      });
+       this.enemyBoard.forEach(card => {
+          card.actions.clearActions();
+          card.actions.easeTo(ex.vec(card.pos.x, card.pos.y + 100), 300, ex.EasingFunctions.EaseInCubic);
+          card.actions.easeTo(card.pos, 100, ex.EasingFunctions.EaseInCubic);
+          card.actions.callMethod(() => {
+            this.emit(UPDATE_HEALTH_EVENT, {
+                entity: "PLAYER",
+                health: this.playerHealth - card.power,
+            });
+        });
+      }); 
     }
   }
 }

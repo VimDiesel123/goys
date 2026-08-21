@@ -1,6 +1,5 @@
 import {
   Actor,
-  Color,
   Engine,
   Vector,
   Sprite,
@@ -42,12 +41,19 @@ export class Card extends Actor {
   public type: string;
   public effect?: string;
 
-  constructor(data: CardData) {
+  constructor(data: CardData, cardPos: Vector) {
     super({
-    // ew
-      x: 850,
-      y: 500,
+        width: 120,
+        height: 170,
+        pos: cardPos,
     });
+
+    const collider = this.collider.get();
+    if(collider) collider.offset = vec(-8, -5)
+
+    this.pointer.useColliderShape = true;
+    this.pointer.useGraphicsBounds = false;
+
     this.name = data.name;
     this.manaCost = data.manaCost;
     this.power = data.power;
@@ -61,7 +67,12 @@ export class Card extends Actor {
     this.pos = position;
   }
 
-  onInitialize(engine: Engine): void {
+  public setOverlapped(isOverlapped: boolean) {
+    if (!isOverlapped) this.collider.useBoxCollider(87, this.height, Vector.Half, vec(-25, -5));
+    else this.collider.useBoxCollider(120, this.height, Vector.Half, vec(-8, -5));
+  }
+
+  onInitialize(_engine: Engine): void {
     const portrait = new Sprite({
       image: Portraits[this.portrait],
       scale: vec(0.25, 0.25),

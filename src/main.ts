@@ -33,3 +33,5 @@ game
   .then(() => {
     // Do something after the game starts
   });
+
+// game.toggleDebug() -- Enable to see bounding boxes
