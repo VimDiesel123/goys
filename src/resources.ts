@@ -6,9 +6,11 @@ export const Resources = {
   RedCardFrame: new ImageSource("./images/red_frame.webp"),
   RedCardBanner: new ImageSource("./images/red_banner.webp"),
   RedCardBorder: new ImageSource("./images/red_border.webp"),
+  RedCardPlaque: new ImageSource("./images/red_plaque.webp"),
   BlueCardFrame: new ImageSource("./images/blue_frame.webp"),
   BlueCardBanner: new ImageSource("./images/blue_banner.webp"),
   BlueCardBorder: new ImageSource("./images/blue_border.webp"),
+  BlueCardPlaque: new ImageSource("./images/blue_plaque.webp"),
   CardMana: new ImageSource("./images/mana.webp"),
   CardAttack: new ImageSource("./images/attack.webp"),
   GoblinImage: new ImageSource("./images/goblin.jpg"),
@@ -35,6 +37,11 @@ export const Borders: Record<string, ex.ImageSource> = {
   red: Resources.RedCardBorder,
   blue: Resources.BlueCardBorder,
 };
+
+export const Plaques: Record<string, ex.ImageSource> = {
+  red: Resources.RedCardPlaque,
+  blue: Resources.BlueCardPlaque,
+}
 
 export const NameFont = new Font({
   size: 16,

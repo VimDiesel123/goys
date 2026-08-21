@@ -12,6 +12,7 @@ import {
 } from "excalibur";
 import { Card, CARD_WIDTH, CardEvents, CardData } from "./card";
 import { Hand } from "./hand";
+import { ScreenCard } from "./ui";
 
 const goblinData: CardData = {
   name: "Goblin",

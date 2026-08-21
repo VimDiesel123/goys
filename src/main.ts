@@ -1,6 +1,8 @@
 import { Color, DisplayMode, Engine, FadeInOut } from "excalibur";
 import { loader } from "./resources";
 import { Duel } from "./duel";
+import { ScreenCard } from "./ui";
+import { Card, CardData } from "./card";
 
 // Goal is to keep main.ts small and just enough to configure the engine
 
@@ -19,6 +21,25 @@ const game = new Engine({
   // fixedUpdateTimestep: 16 // Turn on fixed update timestep when consistent physic simulation is important
 });
 
+const goblinData: CardData = {
+  name: "Goblin",
+  manaCost: 1,
+  power: 1,
+  toughness: 1,
+  portrait: "goblin",
+  type: "red",
+};
+
+const wizardData: CardData = {
+  name: "Wizard",
+  manaCost: 2,
+  power: 2,
+  toughness: 2,
+  portrait: "wizard",
+  type: "blue",
+  effect: "Tap to deal 1 damage to any target.",
+};
+
 game
   .start("start", {
     // name of the start scene 'start'
@@ -32,4 +53,5 @@ game
   })
   .then(() => {
     // Do something after the game starts
+    const screenCard = new ScreenCard(new Card(wizardData));
   });
