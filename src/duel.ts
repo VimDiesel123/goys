@@ -24,9 +24,10 @@ import {
   PLAY_CARD_EVENT,
   TURN_END_EVENT,
   TURN_START_EVENT,
-  UPDATE_PENDING_EVENT
+  UPDATE_PENDING_EVENT,
 } from "./game_board";
 import { Enemy } from "./enemy";
+import { ScreenCard } from "./ui";
 
 const PLAYER_HAND_START_X = 200;
 const PLAYER_HAND_START_Y = 500;
@@ -78,29 +79,29 @@ export class Duel extends Scene {
   private _updatePending: boolean;
 
   private _turnArrow = new Label({
-      text: "?",
-      font: new Font({
-          family: "Comic Sans MS",
-          size: 72,
-      }),
-      color: Color.Gray,
-      pos: vec(-160, -35)
-  })
-  private _turnMessage = new Label({
-      font: new Font({
-        textAlign: TextAlign.Center,
-        family: "Comic Sans MS",
-        size: 24
+    text: "?",
+    font: new Font({
+      family: "Comic Sans MS",
+      size: 72,
     }),
-    pos: vec(25, 0)
+    color: Color.Gray,
+    pos: vec(-160, -35),
+  });
+  private _turnMessage = new Label({
+    font: new Font({
+      textAlign: TextAlign.Center,
+      family: "Comic Sans MS",
+      size: 24,
+    }),
+    pos: vec(25, 0),
   });
   private _declareAttack = new Label({
-      text: "ATTACK!",
-      font: new Font({
-        textAlign: TextAlign.Center,
-        family: "Comic Sans MS",
-        size: 24,
-        color: Color.Red,
+    text: "ATTACK!",
+    font: new Font({
+      textAlign: TextAlign.Center,
+      family: "Comic Sans MS",
+      size: 24,
+      color: Color.Red,
     }),
     pos: vec(25, 55),
     visible: false,
@@ -113,19 +114,19 @@ export class Duel extends Scene {
       size: 24,
       color: Color.White,
     }),
-    pos: vec(25, 90)
+    pos: vec(25, 90),
   });
   private _gameOverMessage = new Label({
-      text: "GAME OVER",
-      font: new Font({
-          textAlign: TextAlign.Center,
-          family: "Comic Sans MS",
-          size: 72,
-          color: Color.White
-      }),
-      visible: false,
-      z: 2
-  })
+    text: "GAME OVER",
+    font: new Font({
+      textAlign: TextAlign.Center,
+      family: "Comic Sans MS",
+      size: 72,
+      color: Color.White,
+    }),
+    visible: false,
+    z: 2,
+  });
 
   private _playerDeckLabel = new Label({
     text: "0",
@@ -154,8 +155,8 @@ export class Duel extends Scene {
       size: 18,
       color: Color.White,
     }),
-    rotation: toRadians(-45)
-  }); 
+    rotation: toRadians(-45),
+  });
   private _playerManaLabel = new Label({
     text: "0",
     font: new Font({
@@ -194,7 +195,7 @@ export class Duel extends Scene {
       size: 18,
       color: Color.White,
     }),
-    rotation: toRadians(-45)
+    rotation: toRadians(-45),
   });
   private _enemyManaLabel = new Label({
     text: "0",
@@ -205,7 +206,7 @@ export class Duel extends Scene {
       size: 18,
       color: Color.Magenta,
     }),
-  }); 
+  });
 
   constructor() {
     super();
@@ -219,9 +220,12 @@ export class Duel extends Scene {
     this.add(this._turnMessage);
     this.add(this._gameBoard);
     this.add(this._enemy);
-    
+
     const title = new Actor({
-        pos: vec(engine.screen.center.x / 2 + 525, engine.screen.center.y / 2 + 150)
+      pos: vec(
+        engine.screen.center.x / 2 + 525,
+        engine.screen.center.y / 2 + 150,
+      ),
     });
     title.addChild(this._turnArrow);
     title.addChild(this._turnMessage);
@@ -234,7 +238,7 @@ export class Duel extends Scene {
       color: Color.Chartreuse,
       pos: vec(PLAYER_DECK_START_X, PLAYER_DECK_START_Y),
     }).addChild(this._playerDeckLabel);
-    
+
     const playerDiscardPile = new Actor({
       width: 100,
       height: 100,
@@ -243,11 +247,11 @@ export class Duel extends Scene {
     }).addChild(this._playerDiscardPileLabel);
 
     const playerHealth = new Actor({
-        width: 50,
-        height: 50,
-        rotation: toRadians(45),
-        color: Color.Teal,
-        pos: vec(PLAYER_HEALTH_START_X, PLAYER_HEALTH_START_Y),
+      width: 50,
+      height: 50,
+      rotation: toRadians(45),
+      color: Color.Teal,
+      pos: vec(PLAYER_HEALTH_START_X, PLAYER_HEALTH_START_Y),
     }).addChild(this._playerHealthLabel);
 
     const playerManaOrb = new Actor({
@@ -261,8 +265,8 @@ export class Duel extends Scene {
       height: 100,
       color: Color.Chartreuse,
       pos: vec(ENEMY_DECK_START_X, ENEMY_DECK_START_Y),
-    }).addChild(this._enemyDeckLabel)
-    
+    }).addChild(this._enemyDeckLabel);
+
     const enemyDiscardPile = new Actor({
       width: 100,
       height: 100,
@@ -286,13 +290,13 @@ export class Duel extends Scene {
 
     const enemySprite = this._enemy.sprite;
     enemySprite.scale = vec(0.075, 0.075);
- 
+
     const enemyPortrait = new Actor({
-        z: 1,
-        pos: vec(ENEMY_PORTRAIT_START_X, ENEMY_PORTRAIT_START_Y)
+      z: 1,
+      pos: vec(ENEMY_PORTRAIT_START_X, ENEMY_PORTRAIT_START_Y),
     });
     enemyPortrait.graphics.use(enemySprite);
-    
+
     const playersHandMessage = new Label({
       text: "Your hand:",
       pos: vec(PLAYER_HAND_START_X - 65, PLAYER_HAND_START_Y - 110),
@@ -301,7 +305,7 @@ export class Duel extends Scene {
       text: "Your Deck",
       pos: vec(PLAYER_DECK_START_X - 25, PLAYER_DECK_START_Y - 65),
     });
-     const playerDiscardPileMessage = new Label({
+    const playerDiscardPileMessage = new Label({
       text: "Your Discard Pile",
       pos: vec(PLAYER_DISCARD_START_X - 40, PLAYER_DISCARD_START_Y - 65),
     });
@@ -314,13 +318,13 @@ export class Duel extends Scene {
       text: "Enemy Deck",
       pos: vec(ENEMY_DECK_START_X - 25, ENEMY_DECK_START_Y - 65),
     });
-     const enemyDiscardPileMessage = new Label({
+    const enemyDiscardPileMessage = new Label({
       text: "Enemy Discard Pile",
       pos: vec(ENEMY_DISCARD_START_X - 45, ENEMY_DISCARD_START_Y - 65),
     });
 
     this.add(title);
-   
+
     this.add(playersHandMessage);
     this.add(playerDeckMessage);
     this.add(playerDiscardPileMessage);
@@ -338,65 +342,76 @@ export class Duel extends Scene {
     this.add(enemyDiscardPile);
     this.add(enemyHealth);
     this.add(enemyManaOrb);
-    
+
     this.add(enemyPortrait);
-   
+
     this._endTurn.on("pointerdown", (_evt) => {
-        const gameTurn = this._gameBoard.turn;
-        if (gameTurn === "PLAYER") this.emit(TURN_END_EVENT, { entity: "PLAYER" });
+      const gameTurn = this._gameBoard.turn;
+      if (gameTurn === "PLAYER")
+        this.emit(TURN_END_EVENT, { entity: "PLAYER" });
     });
     this._declareAttack.on("pointerdown", (_evt) => {
-        const gameTurn = this._gameBoard.turn;
-        if (gameTurn === "PLAYER" && this._declareAttack.graphics.isVisible) this.emit(DECLARE_ATTACK_EVENT, { entity: "PLAYER" });
+      const gameTurn = this._gameBoard.turn;
+      if (gameTurn === "PLAYER" && this._declareAttack.graphics.isVisible)
+        this.emit(DECLARE_ATTACK_EVENT, { entity: "PLAYER" });
     });
 
     this.add(this._endTurn);
     this.add(this._declareAttack);
 
     this.events.on(GAME_END_EVENT, (e: any) => {
-        if(e.winner === "PLAYER") {
-            this._gameOverMessage.text = "YOU WIN! You have defeated evil"
-            this._gameOverMessage.graphics.color = Color.Green;
-            this._gameOverMessage.graphics.isVisible = true;
-            this._gameOverMessage.actions.moveTo(
-                vec(engine.screen.center.x / 2 + 100, engine.screen.center.y / 2 + 150), 5000, EasingFunctions.EaseInOutQuad
-            );
-            
-            this._turnMessage.graphics.isVisible = false;
-            this._endTurn.graphics.isVisible = false;
-            this._declareAttack.graphics.isVisible = false;
-            this._turnArrow.graphics.isVisible = false;
+      if (e.winner === "PLAYER") {
+        this._gameOverMessage.text = "YOU WIN! You have defeated evil";
+        this._gameOverMessage.graphics.color = Color.Green;
+        this._gameOverMessage.graphics.isVisible = true;
+        this._gameOverMessage.actions.moveTo(
+          vec(
+            engine.screen.center.x / 2 + 100,
+            engine.screen.center.y / 2 + 150,
+          ),
+          5000,
+          EasingFunctions.EaseInOutQuad,
+        );
 
-            enemyPortrait.actions.fade(0, 2000)
-            enemyPortrait.actions.callMethod(() => engine.stop());
-        } else {
-            this._gameOverMessage.text = "YOU LOSE! Evil has triumphed";
-            this._gameOverMessage.graphics.color = Color.Red;
-            this._gameOverMessage.graphics.isVisible = true;
-            this._gameOverMessage.actions.moveTo(
-                vec(engine.screen.center.x / 2, engine.screen.center.y / 2 + 100), 5000, EasingFunctions.EaseInOutQuad
-            );
+        this._turnMessage.graphics.isVisible = false;
+        this._endTurn.graphics.isVisible = false;
+        this._declareAttack.graphics.isVisible = false;
+        this._turnArrow.graphics.isVisible = false;
 
-            this._turnMessage.graphics.isVisible = false;
-            this._endTurn.graphics.isVisible = false;
-            this._declareAttack.graphics.isVisible = false;
-            this._turnArrow.graphics.isVisible = false;
+        enemyPortrait.actions.fade(0, 2000);
+        enemyPortrait.actions.callMethod(() => engine.stop());
+      } else {
+        this._gameOverMessage.text = "YOU LOSE! Evil has triumphed";
+        this._gameOverMessage.graphics.color = Color.Red;
+        this._gameOverMessage.graphics.isVisible = true;
+        this._gameOverMessage.actions.moveTo(
+          vec(engine.screen.center.x / 2, engine.screen.center.y / 2 + 100),
+          5000,
+          EasingFunctions.EaseInOutQuad,
+        );
 
-            enemyPortrait.pos = vec(engine.screen.center.x / 2 + 50, engine.screen.center.y / 2 + 150);
-            enemyPortrait.actions.scaleTo(vec(5, 5), vec(0.5, 0.5));
-            enemyPortrait.actions.callMethod(() => engine.stop());
-        }
-    })
+        this._turnMessage.graphics.isVisible = false;
+        this._endTurn.graphics.isVisible = false;
+        this._declareAttack.graphics.isVisible = false;
+        this._turnArrow.graphics.isVisible = false;
+
+        enemyPortrait.pos = vec(
+          engine.screen.center.x / 2 + 50,
+          engine.screen.center.y / 2 + 150,
+        );
+        enemyPortrait.actions.scaleTo(vec(5, 5), vec(0.5, 0.5));
+        enemyPortrait.actions.callMethod(() => engine.stop());
+      }
+    });
 
     this.add(this._gameOverMessage);
-    
-    this.on(UPDATE_PENDING_EVENT, (_evt) =>
-        this._updatePending = true
-    );
+
+    this.on(UPDATE_PENDING_EVENT, (_evt) => (this._updatePending = true));
     this.on(DAMAGE_TAKEN_EVENT, (evt: any) => {
-        if(evt.entity === "PLAYER") this._playerHealthLabel.actions.blink(250, 250, 2);
-        else this._enemyHealthLabel.actions.blink(250, 250, 2);
-    })
+      if (evt.entity === "PLAYER")
+        this._playerHealthLabel.actions.blink(250, 250, 2);
+      else this._enemyHealthLabel.actions.blink(250, 250, 2);
+    });
   }
 
   addCardToBoard(card: Card) {
@@ -428,26 +443,33 @@ export class Duel extends Scene {
     } else {
       this._turnMessage.text = this._enemy.currentState();
       this._turnArrow.text = DOWN_ARROW;
-      this._turnArrow.graphics.color = Color.Red; 
+      this._turnArrow.graphics.color = Color.Red;
     }
 
-    const canAttack = this._gameBoard.playerBoard.length > 0 && this._gameBoard.turn === "PLAYER" && !this._gameBoard.hasAttackedThisTurn;
+    const canAttack =
+      this._gameBoard.playerBoard.length > 0 &&
+      this._gameBoard.turn === "PLAYER" &&
+      !this._gameBoard.hasAttackedThisTurn;
     this._declareAttack.graphics.isVisible = canAttack;
 
     this._playerDeckLabel.text = this._gameBoard.playerDeck.length.toString();
-    this._playerDiscardPileLabel.text = this._gameBoard.playerDiscard.length.toString();
+    this._playerDiscardPileLabel.text =
+      this._gameBoard.playerDiscard.length.toString();
     this._playerHealthLabel.text = this._gameBoard.playerHealth.toString();
     this._playerManaLabel.text = this._gameBoard.playerMana.toString();
 
     this._enemyDeckLabel.text = this._gameBoard.enemyDeck.length.toString();
-    this._enemyDiscardPileLabel.text = this._gameBoard.enemyDiscard.length.toString();
+    this._enemyDiscardPileLabel.text =
+      this._gameBoard.enemyDiscard.length.toString();
     this._enemyHealthLabel.text = this._gameBoard.enemyHealth.toString();
     this._enemyManaLabel.text = this._gameBoard.enemyMana.toString();
 
     if (!this._updatePending) return;
 
     const numCardsInPlayerHand = this._gameBoard.playerHand.length;
+    //TODO: (Merge these together!)
     this._gameBoard.playerHand.forEach((card, index) => {
+      const screenCard = new ScreenCard(card);
       const cardPos = vec(
         PLAYER_HAND_START_X +
           (CARD_WIDTH * index +
@@ -456,13 +478,14 @@ export class Duel extends Scene {
             numCardsInPlayerHand),
         PLAYER_HAND_START_Y,
       );
-      
+
       const isOverlapped = index === numCardsInPlayerHand - 1;
       card.setOverlapped(isOverlapped);
 
       card.off(CardEvents.Pressed);
       card.events.on(CardEvents.Pressed, () => {
-        if(isPlayerTurn) this.emit(PLAY_CARD_EVENT, { entity: "PLAYER", card });
+        if (isPlayerTurn)
+          this.emit(PLAY_CARD_EVENT, { entity: "PLAYER", card });
       });
       card.actions.clearActions();
       card.actions.moveTo(cardPos, 500, EasingFunctions.EaseInOutCubic);

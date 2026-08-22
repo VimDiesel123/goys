@@ -16,7 +16,7 @@ import {
   NameFont,
 } from "./resources";
 
-export const CARD_WIDTH = 80 * 0.80;
+export const CARD_WIDTH = 80 * 0.8;
 
 export const CardEvents = {
   Pressed: "cardpressed",
@@ -43,13 +43,13 @@ export class Card extends Actor {
 
   constructor(data: CardData, cardPos: Vector) {
     super({
-        width: 120,
-        height: 170,
-        pos: cardPos,
+      width: 120,
+      height: 170,
+      pos: cardPos,
     });
 
     const collider = this.collider.get();
-    if(collider) collider.offset = vec(-8, -5)
+    if (collider) collider.offset = vec(-8, -5);
 
     this.pointer.useColliderShape = true;
     this.pointer.useGraphicsBounds = false;
@@ -68,25 +68,27 @@ export class Card extends Actor {
   }
 
   public setOverlapped(isOverlapped: boolean) {
-    if (!isOverlapped) this.collider.useBoxCollider(87, this.height, Vector.Half, vec(-25, -5));
-    else this.collider.useBoxCollider(120, this.height, Vector.Half, vec(-8, -5));
+    if (!isOverlapped)
+      this.collider.useBoxCollider(87, this.height, Vector.Half, vec(-25, -5));
+    else
+      this.collider.useBoxCollider(120, this.height, Vector.Half, vec(-8, -5));
   }
 
   onInitialize(_engine: Engine): void {
     const portrait = new Sprite({
-      image: Portraits[this.portrait],
+      image: Portraits.get(this.portrait)!,
       scale: vec(0.25, 0.25),
     });
     const frame = new Sprite({
-      image: Frames[this.type],
+      image: Frames.get(this.type)!,
       scale: vec(0.25, 0.25),
     });
     const border = new Sprite({
-      image: Borders[this.type],
+      image: Borders.get(this.type)!,
       scale: vec(0.25, 0.25),
     });
     const banner = new Sprite({
-      image: Banners[this.type],
+      image: Banners.get(this.type)!,
       scale: vec(0.25, 0.25),
     });
     const mana = new Sprite({
@@ -155,9 +157,10 @@ export class Card extends Actor {
         },
       ],
     });
-    group.scale = vec(0.80, 0.80);
+    group.scale = vec(0.8, 0.8);
 
     this.graphics.use(group);
+
     this.events.on("pointerdown", () => {
       console.log("Card pressed");
       this.events.emit(CardEvents.Pressed, { card: this });
